@@ -1,7 +1,7 @@
 from quote import Quote
 
 class Profile:
-    def __init__(self, name, address1, address2 = "", city, state, zipcode, username, password):
+    def __init__(self, username, password, name, city, state, zipcode, address1, address2=""):
         self.name = name
         self.address1 = address1
         self.address2 = address2
@@ -10,27 +10,18 @@ class Profile:
         self.zipcode = zipcode
         self.username = username
         self.password = password
-        self.quotes = Quote[]
+        self.quotes = []
 
     def Registered(self, user):
-        bool found = false
-        if user == self.username:
-            found = true
-        return found
+        return user == self.username
 
     def Login(self, user, password):
-        bool valid = false
-        if self.username == user && self.password == password:
-            valid = true
-        return valid
+        return self.username == user and self.password == password
 
     def QuoteHistory(self):
-        i = 0
-        while self.quotes:
-            print(quotes[i].gallons, \n, quotes[i].address, \n, quotes[i].date, \n, quotes[i].price, \n, quotes[i].total)
-            i++
+        for quote in self.quotes:
+            print(quote)
 
     def addQuote(self, gallons, date, price, total, address=""):
-        i = length(self.quotes)
-        self.quotes[i] = Quote(gallons, date, price, total, address)
+        self.quotes.append(Quote(gallons, date, price, total, address))
         
