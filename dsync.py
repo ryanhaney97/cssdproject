@@ -17,18 +17,22 @@ async def send_message(connection, *args):
     reader, writer = connection
     writer.write(data.encode())
     await writer.drain()
-    response_data = await reader.readline()
-    response = response_data.decode().strip()
-    return response
 
-async def receive_message(connection, handler):
+async def receive_message(connection):
     reader, writer = connection
     data = await reader.readline()
     message = data.decode().strip()
+    return message
+
+async def send_message_fn(connection, *args):
+    await send_message(connection, *args)
+    response = await receive_message(connection)
+    return response
+
+async def receive_message_fn(connection, handler):
+    message = await receive_message(connection)
     args = message.split(",")
-    response = str(service(*args)) + "\n"
-    writer.write(response.encode())
-    await writer.drain()
+    await send_message(connection, str(handler(*args)).encode())
 
 def run_server(callback, port, serve_forever=True):
     async def server_callback(reader, writer):
