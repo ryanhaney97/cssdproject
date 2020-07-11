@@ -9,10 +9,8 @@ dbconnection = None
 def get_user_for_login(username, password):
 	c = dbconnection.cursor()
 	c.execute("SELECT * FROM profile")
-	print(username, password)
 	c.execute("SELECT username, password, name, city, state, zipcode, address1, address2 FROM profile WHERE username=? AND password=?", (username, password))
 	results = c.fetchall()
-	print(results)
 	if(len(results)==0):
 		return None
 	result = results[0]
