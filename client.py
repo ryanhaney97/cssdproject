@@ -2,8 +2,8 @@ from dsync import connect_to_server, send_message, receive_message, send_message
 import asyncio
 
 async def main():
-	testprofiledata = ("someusername", "somepassword", "somename", "somecity", "somestate", "somezip", "someaddr1")
-	connection = await connect_to_server("localhost", 9000)
+	testprofiledata = ("someusername", "somename", "somecity", "somestate", "somezip", "someaddr1", "somepassword")
+	connection = await connect_to_server("localhost", 9000, "csprojecttest")
 	await send_message(connection, "Login")
 	response = await send_message_fn(connection, "someusername", "somepassword")
 	# response = await send_message_fn(connection, *testprofiledata)

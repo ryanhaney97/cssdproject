@@ -8,6 +8,7 @@ import asyncio
 import dsync
 import socket
 import database
+import ssl
 
 class LoginTests(unittest.TestCase):
 	def setUp(self):
@@ -96,7 +97,10 @@ def dfetchall(cursor):
 async def setupFakeServer(self):
 	async def server_callback(reader, writer):
 		self.server_connection = (reader, writer)
-	self.server = await asyncio.start_server(server_callback, socket.gethostname(), 9001)
+	sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+	sslcontext.check_hostname = False
+	sslcontext.load_cert_chain("csprojecttest.crt", "csprojecttest.key")
+	self.server = await asyncio.start_server(server_callback, socket.gethostname(), 9001, ssl=sslcontext)
 
 async def runServForever(self):
 	async with self.server:
@@ -110,15 +114,21 @@ class ConnectionTests(unittest.TestCase):
 		loop = asyncio.get_event_loop()
 		loop.run_until_complete(setupFakeServer(self))
 		loop.create_task(runServForever(self))
-		self.connection = loop.run_until_complete(dsync.connect_to_server("localhost", 9001))
+		self.connection = loop.run_until_complete(dsync.connect_to_server("localhost", 9001, "csprojecttest"))
+		while(self.server_connection is None):
+			loop.run_until_complete(asyncio.sleep(0))
 	def tearDown(self):
 		self.server.close()
+		loop = asyncio.get_event_loop()
+		self.connection[1].close()
+		self.server_connection[1].close()
+		loop.run_until_complete(self.connection[1].wait_closed())
+		loop.run_until_complete(self.server_connection[1].wait_closed())
 		self.server_connection = None
 		self.server = None
 		self.connection = None
 		server.dbconnection.close()
 		server.dbconnection = None
-		loop = asyncio.get_event_loop()
 		if(loop.is_running()):
 			loop.stop()
 	def test_dsync_messages(self):
@@ -131,6 +141,8 @@ class ConnectionTests(unittest.TestCase):
 		loop.create_task(dsync.send_message(self.connection, *messages))
 		recieved_messages = loop.run_until_complete(asyncio.wait_for(dsync.receive_message(self.server_connection), timeout=10)).split("\u200c")
 		self.assertEqual(messages, recieved_messages)
+		self.connection[1].close()
+		self.server_connection[1].close()
 	def test_server_registration(self):
 		loop = asyncio.get_event_loop()
 		login_task = loop.create_task(server.handle_new_login(self.server_connection))

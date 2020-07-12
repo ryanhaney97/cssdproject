@@ -47,8 +47,6 @@ async def handle_user_requests(connection, current_user, *args):
 		return
 
 
-#Warning: This login system is NOT secure (doesn't use SSL). For now this will do, but in a real app (or latter, if needed),
-#should be replaced with a proper ssl, token-based auth.
 async def handle_new_login(connection):
 	try:
 		current_user = None
@@ -89,7 +87,7 @@ def main():
 		print("Initializing Database...")
 		database.initDB("csproject.db")
 	dbconnection = sqlite3.connect("csproject.db")
-	run_server(handle_new_login, 9000)
+	run_server(handle_new_login, 9000, "csprojecttest")
 
 if __name__ == "__main__":
 	main()

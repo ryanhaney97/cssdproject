@@ -1,16 +1,17 @@
 import asyncio
 import socket
 from types import CoroutineType
+import ssl
+from traceback import print_stack
 
-async def connect_to_server(server_name, server_port):
+async def connect_to_server(server_name, server_port, certificate):
     if(server_name == "localhost"):
         server_name = socket.gethostname()
-    try:
-        reader, writer = await asyncio.open_connection(server_name, server_port)
-        return (reader, writer)
-    except:
-        print("Connection failed: couldn't find server")
-        exit(1)
+    sslcontext = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+    sslcontext.check_hostname = False
+    sslcontext.load_verify_locations(certificate + '.crt')
+    reader, writer = await asyncio.open_connection(server_name, server_port, ssl=sslcontext)
+    return (reader, writer)
 
 async def send_message(connection, *args):
     data = ""
@@ -47,12 +48,15 @@ async def receive_message_fn(connection, handler):
         result = await result
     await send_message(connection, str(result).encode())
 
-def run_server(callback, port, serve_forever=True):
+def run_server(callback, port, certificate, serve_forever=True):
     async def server_callback(reader, writer):
         await callback((reader, writer))
     async def server_main():
         print("starting server")
-        server = await asyncio.start_server(server_callback, socket.gethostname(), port)
+        sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        sslcontext.check_hostname = False
+        sslcontext.load_cert_chain(certificate + ".crt", certificate + ".key")
+        server = await asyncio.start_server(server_callback, socket.gethostname(), port, ssl=sslcontext)
         print("server started")
         if(serve_forever):
             async with server:
