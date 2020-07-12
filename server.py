@@ -1,20 +1,27 @@
 from dsync import run_server, receive_message, send_message, receive_message_fn
 from functools import partial
 import sqlite3
+import database
 from profile import Profile
 from quote import Quote
+from os.path import isfile
 
 dbconnection = None
 
 def get_user_for_login(username, password):
 	c = dbconnection.cursor()
-	c.execute("SELECT * FROM profile")
-	c.execute("SELECT username, password, name, city, state, zipcode, address1, address2 FROM profile WHERE username=? AND password=?", (username, password))
+	c.execute("SELECT salt FROM Profile WHERE username=?", (username,))
+	result = c.fetchone()
+	if(result is None):
+		return None
+	salt = result[0]
+	passhash = database.hash_password(password, salt)
+	c.execute("SELECT username, name, city, state, zipcode, address1, address2 FROM Profile WHERE username=? AND password=? AND salt=?", (username, passhash, salt))
 	results = c.fetchall()
-	if(len(results)==0):
+	if(len(results)!=1):
 		return None
 	result = results[0]
-	c.execute("SELECT gallons, date, price, total, address FROM quote WHERE user=?", (username,))
+	c.execute("SELECT gallons, date, price, total, address FROM Quote WHERE username=?", (username,))
 	quotes = []
 	for quote in c:
 		quotes.append(Quote(*quote))
@@ -22,13 +29,13 @@ def get_user_for_login(username, password):
 
 def make_new_user(*args):
 	if(len(args) == 7 or len(args) == 8):
-		profile = Profile(*args)
+		password = args[-1]
+		profile = Profile(*(args[:-1]))
 		c = dbconnection.cursor()
-		c.execute("SELECT username FROM profile WHERE username=?", (profile.username,))
+		c.execute("SELECT username FROM Profile WHERE username=?", (profile.username,))
 		results = c.fetchall()
 		if(len(results) == 0):
-			c.execute("INSERT INTO profile (username, password, name, city, state, zipcode, address1, address2) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-					 (profile.username, profile.password, profile.name, profile.city, profile.state, profile.zipcode, profile.address1, profile.address2))
+			database.insertProfile(dbconnection, profile, password)
 			dbconnection.commit()
 			return profile
 	return None
@@ -78,6 +85,9 @@ async def handle_new_login(connection):
 
 def main():
 	global dbconnection
+	if(not isfile("csproject.db")):
+		print("Initializing Database...")
+		database.initDB("csproject.db")
 	dbconnection = sqlite3.connect("csproject.db")
 	run_server(handle_new_login, 9000)
 
