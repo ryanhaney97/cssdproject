@@ -5,13 +5,15 @@ async def main():
 	testprofiledata = ("someusername", "somename", "somecity", "somestate", "somezip", "someaddr1", "somepassword")
 	connection = await connect_to_server("localhost", 9000, "csprojecttest")
 	await send_message(connection, "Login")
-	response = await send_message_fn(connection, "someusername", "somepassword")
-	# response = await send_message_fn(connection, *testprofiledata)
+	# response = await send_message_fn(connection, "someusername", "somepassword")
+	response = await send_message_fn(connection, *testprofiledata)
 	print("response:", response)
 	if(response == "Success"):
 		print("Success! Yay!")
 	print("Logout")
-	result = await send_message_fn(connection, "Logout")
+	await send_message(connection, "Logout")
+	connection[1].close()
+	await connection[1].wait_closed()
 	print("Done!")
 
 if __name__ == "__main__":

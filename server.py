@@ -4,33 +4,32 @@ import sqlite3
 import database
 from profile import Profile
 from quote import Quote
+from address import Address
 from os.path import isfile
+from datetime import date as dtdate
 
 dbconnection = None
 
 def get_user_for_login(username, password):
 	c = dbconnection.cursor()
-	c.execute("SELECT salt FROM Profile WHERE username=?", (username,))
-	result = c.fetchone()
-	if(result is None):
-		return None
-	salt = result[0]
-	passhash = database.hash_password(password, salt)
-	c.execute("SELECT username, name, city, state, zipcode, address1, address2 FROM Profile WHERE username=? AND password=? AND salt=?", (username, passhash, salt))
+	c.execute("SELECT password, salt FROM Profile WHERE username=?", (username,))
 	results = c.fetchall()
 	if(len(results)!=1):
 		return None
-	result = results[0]
-	c.execute("SELECT gallons, date, price, total, address FROM Quote WHERE username=?", (username,))
-	quotes = []
-	for quote in c:
-		quotes.append(Quote(*quote))
-	return Profile(*result, quotes=quotes)
+	correct_hash, salt = results[0]
+	passhash = database.hash_password(password, salt)
+	if(passhash == correct_hash):
+		return database.getProfile(dbconnection, username)
+	else:
+		return None
 
 def make_new_user(*args):
 	if(len(args) == 7 or len(args) == 8):
 		password = args[-1]
-		profile = Profile(*(args[:-1]))
+		restargs = args[:-1]
+		username, name = restargs[:2]
+		address = Address(*restargs[2:])
+		profile = Profile(username, name, address)
 		c = dbconnection.cursor()
 		c.execute("SELECT username FROM Profile WHERE username=?", (profile.username,))
 		results = c.fetchall()
@@ -40,11 +39,38 @@ def make_new_user(*args):
 			return profile
 	return None
 
-#Dispatch function for the server, Dummy implementation (add features off of here)
+def get_quote(current_user, *args):
+	if(len(args) != 2):
+		return "Error, invalid arity."
+	gallons, strdate = args
+	date = dtdate.fromisoformat(strdate)
+	newquote = Quote(gallons, date, current_user.address)
+	current_user.quoteinprogress = newquote
+
+def get_quote_history(current_user, *args):
+	pass
+
+def submit_quote(current_user, *args):
+	pass
+
+userhandlermap = {
+	"Get Quote": get_quote,
+	"Get Quote History": get_quote_history,
+	"Submit Quote": submit_quote,
+}
+
+#Dispatch function for the server
 async def handle_user_requests(connection, current_user, *args):
+	if(len(args) == 0):
+		return "Error, Empty Request"
 	if(args[0] == "Logout"):
 		connection[1].close()
 		return
+	elif(args[0] in userhandlermap):
+		return userhandlermap[args[0]](current_user, *(args[1:]))
+	else:
+		return "Error, Invalid Request"
+
 
 
 async def handle_new_login(connection):
@@ -53,8 +79,11 @@ async def handle_new_login(connection):
 		while(current_user is None and (not connection[1].is_closing())):
 			message = await receive_message(connection)
 			if(message == "Login"):
-				username, password = (await receive_message(connection)).split("\u200c")
-				current_user = get_user_for_login(username, password)
+				result = (await receive_message(connection)).split("\u200c")
+				if(len(result)!=2):
+					await send_message(connection, "Error, Wrong Number Of Arguments")
+				else:
+					current_user = get_user_for_login(*result)
 				if(current_user is None):
 					await send_message(connection, "Error, Wrong Username Or Password")
 			elif(message == "Register"):

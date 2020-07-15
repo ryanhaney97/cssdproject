@@ -1,11 +1,19 @@
 class Quote:
-    def __init__(self, gallons, date, price, total, address=""):
+    quote_by_id = {}
+    def __init__(self, gallons, date, address, price=None):
         self.gallons = gallons
         self.date = date
         self.price = price
-        self.total = total
         self.address = address
+        self.id = None
+    def total(self):
+        if(price is None):
+            return None
+        return self.price * self.gallons
+    def setID(self, id):
+        self.id = id
+        Quote.quote_by_id[id] = self
     def __repr__(self):
-        return str(self.gallons) + "\n" + str(self.date) + "\n" + str(self.price) + "\n" + str(self.total) + "\n" + str(self.address) + "\n"
-    def __eq__(self, other):
-    	return isinstance(other, Quote) and self.gallons == other.gallons and self.date == other.date and self.price == other.price and self.total == other.total and self.address == other.address
+        return str(self.gallons) + "\n" + str(self.date) + "\n" + str(self.price) +"\n" + str(self.address) + "\n"
+    def __eq__(self, obj):
+        return isinstance(obj, Quote) and self.gallons == obj.gallons and self.date == obj.date and self.price == obj.price and self.address == obj.address

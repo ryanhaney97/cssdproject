@@ -48,18 +48,21 @@ async def receive_message_fn(connection, handler):
         result = await result
     await send_message(connection, str(result).encode())
 
-def run_server(callback, port, certificate, serve_forever=True):
+async def make_server(callback, port, certificate):
     async def server_callback(reader, writer):
         await callback((reader, writer))
+    sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    sslcontext.check_hostname = False
+    sslcontext.load_cert_chain(certificate + ".crt", certificate + ".key")
+    server = await asyncio.start_server(server_callback, socket.gethostname(), port, ssl=sslcontext)
+    return server
+
+def run_server(callback, port, certificate):
     async def server_main():
-        print("starting server")
-        sslcontext = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        sslcontext.check_hostname = False
-        sslcontext.load_cert_chain(certificate + ".crt", certificate + ".key")
-        server = await asyncio.start_server(server_callback, socket.gethostname(), port, ssl=sslcontext)
-        print("server started")
-        if(serve_forever):
-            async with server:
-                await server.serve_forever()
+        print("Starting Server...")
+        server = await make_server(callback, port, certificate)
+        print("Server Started")
+        async with server:
+            await server.serve_forever()
     asyncio.run(server_main())
 
