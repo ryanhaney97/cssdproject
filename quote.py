@@ -14,6 +14,6 @@ class Quote:
         self.id = id
         Quote.quote_by_id[id] = self
     def __repr__(self):
-        return str(self.gallons) + "\n" + str(self.date) + "\n" + str(self.price) +"\n" + str(self.address) + "\n"
+        return f"{self.gallons}\n{self.date}\n{self.price}\n{self.address}\n"
     def __eq__(self, obj):
         return isinstance(obj, Quote) and self.gallons == obj.gallons and self.date == obj.date and self.price == obj.price and self.address == obj.address
