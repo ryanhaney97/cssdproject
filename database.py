@@ -27,7 +27,7 @@ def initDB(db):
 				 gallons INTEGER,
 				 date DATE,
 				 address INTEGER,
-				 price INTEGER,
+				 price REAL,
 				 username TEXT,
 				 FOREIGN KEY (username) REFERENCES Profile(username) ON DELETE CASCADE,
 				 FOREIGN KEY (address) REFERENCES Address(addressID))''')
@@ -40,7 +40,7 @@ def insertAddress(connection, address):
 	c = connection.cursor()
 	c.execute("INSERT INTO Address (city, state, zipcode, address1, address2) VALUES (?, ?, ?, ?, ?)", (address.city, address.state, address.zipcode, address.address1, address.address2))
 	c.execute("SELECT MAX(addressID) FROM Address")
-	address.setID(c.fetchone()[0])
+	address.id = c.fetchone()[0]
 
 def insertQuote(connection, quote, username):
 	c = connection.cursor()
@@ -48,7 +48,7 @@ def insertQuote(connection, quote, username):
 		insertAddress(connection, quote.address)
 	c.execute("INSERT INTO Quote (gallons, date, address, price, username) VALUES (?, ?, ?, ?, ?)", (quote.gallons, quote.date, quote.address.id, quote.price, username))
 	c.execute("SELECT MAX(quoteID) FROM Quote")
-	quote.setID(c.fetchone()[0])
+	quote.id = c.fetchone()[0]
 
 def insertProfile(connection, profile, password):
 	c = connection.cursor()
@@ -63,6 +63,32 @@ def insertProfile(connection, profile, password):
 		if(quote.id is None):
 			insertQuote(connection, quote, profile.username)
 
+def updateProfile(connection, profile, oldpassword=None, newpassword=None):
+	c = connection.cursor()
+	if(oldpassword is not None and newpassword is not None):
+		c.execute("SELECT password, salt FROM Profile WHERE username=?", (profile.username,))
+		results = c.fetchall()
+		if(len(results)==1):
+			correct_hash, salt = results[0]
+			if(correct_hash == hash_password(oldpassword, salt)):
+				salt = urandom(64)
+				passhash = hash_password(newpassword, salt)
+				if(profile.address.id is None):
+					insertAddress(connection, profile.address)
+				c.execute("UPDATE Profile SET password=?, salt=?, name=?, address=? WHERE username=?", (passhash, salt, profile.name, profile.address.id, profile.username))
+				return "Success"
+			else:
+				return "Error: wrong password"
+		else:
+			return "Error: User not found"
+	elif(oldpassword is not None or newpassword is not None):
+		return "Error: Need both old and new password"
+	else:
+		if(profile.address.id is None):
+			insertAddress(connection, profile.address)
+		c.execute("UPDATE Profile SET name=?, address=? WHERE username=?", (profile.name, profile.address.id, profile.username))
+		return "Success"
+
 def getAddress(connection, addressID):
 	if(addressID in Address.address_by_id):
 		return Address.address_by_id[addressID]
@@ -72,7 +98,7 @@ def getAddress(connection, addressID):
 	if(len(results) == 0):
 		return None
 	address = Address(*results[0])
-	address.setID(addressID)
+	address.id = addressID
 	return address
 
 def getQuote(connection, quoteID):
@@ -87,7 +113,7 @@ def getQuote(connection, quoteID):
 	date = dtdate.fromisoformat(strdate)
 	address = getAddress(connection, addressID)
 	quote = Quote(gallons, date, address, price)
-	quote.setID(quoteID)
+	quote.id = quoteID
 	return quote
 
 def getProfile(connection, username):

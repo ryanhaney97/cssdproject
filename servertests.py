@@ -36,6 +36,7 @@ class DBTests(unittest.TestCase):
 		Quote.quote_by_id = {}
 		Address.address_by_id = {}
 		server.dbconnection = database.initDB(":memory:")
+		server.connected_users = set()
 	def tearDown(self):
 		server.dbconnection.close()
 		server.dbconnection = None
@@ -66,11 +67,12 @@ class LoginTests(unittest.TestCase):
 		Quote.quote_by_id = {}
 		Address.address_by_id = {}
 		server.dbconnection = database.initDB(":memory:")
+		server.connected_users = set()
 	def tearDown(self):
 		server.dbconnection.close()
 		server.dbconnection = None
 	def test_make_new_user_argtest(self):
-		self.assertIsNone(server.make_new_user())
+		self.assertIsInstance(server.make_new_user(), str)
 	def test_make_new_user_creationtest(self):
 		#Make fake profile:
 		testprofile = makeFakeProfile()
@@ -89,16 +91,16 @@ class LoginTests(unittest.TestCase):
 		self.assertEqual(actualprofile, testprofile)
 		#Ensure that a new entry has been created in the database:
 		dbprofile = database.getProfile(server.dbconnection, testprofile.username)
-		self.assertIsNotNone(dbprofile)
+		self.assertIsInstance(dbprofile, Profile)
 		self.assertEqual(dbprofile, testprofile)
 	def test_make_new_user_conflicttest(self):
 		#Similar to above, but add the user to the database first and make sure that make_new_user returns None when there's a user conflict.
 		testprofile = makeAndInsertFakeProfile(server.dbconnection)
 		otherconflictingdata = ()
-		self.assertIsNone(server.make_new_user("someusername", "someothername", "someothercity", "someotherstate", "someotherzip", "someotheraddr1", "someotherpassword"))
+		self.assertIsInstance(server.make_new_user("someusername", "someothername", "someothercity", "someotherstate", "someotherzip", "someotheraddr1", "someotherpassword"), str)
 		#Also make sure it didn't change or overwrite anything.
 		profile = database.getProfile(server.dbconnection, testprofile.username)
-		self.assertIsNotNone(profile)
+		self.assertIsInstance(profile, Profile)
 		self.assertEqual(profile, testprofile)
 	def test_get_user_for_login_correct(self):
 		#Test that the proper profile object is returned after a correct login.
@@ -110,23 +112,23 @@ class LoginTests(unittest.TestCase):
 	def test_get_user_for_login_incorrectpassword(self):
 		#Make sure it returns none for an incorrect login password.
 		testprofile = makeAndInsertFakeProfile(server.dbconnection, password="somepassword")
-		self.assertIsNone(server.get_user_for_login(testprofile.username, "wrongpassword"))
+		self.assertIsInstance(server.get_user_for_login(testprofile.username, "wrongpassword"), str)
 	def test_get_user_for_login_incorrectusername(self):
 		#Make sure it returns none for an incorrect login username.
 		testpassword = "somepassword"
 		testprofile = makeAndInsertFakeProfile(server.dbconnection, password=testpassword)
-		self.assertIsNone(server.get_user_for_login("wrongusername", testpassword))
+		self.assertIsInstance(server.get_user_for_login("wrongusername", testpassword), str)
 async def wait_server(server):
 	async with server:
 		await server.serve_forever()
 class ConnectionTests(unittest.IsolatedAsyncioTestCase):
-
 	async def server_callback(self, connection):
 		self.server_connection = connection
 	def setUp(self):
 		Quote.quote_by_id = {}
 		Address.address_by_id = {}
 		server.dbconnection = database.initDB(":memory:")
+		server.connected_users = set()
 	async def asyncSetUp(self):
 		self.server = await dsync.make_server(self.server_callback, 9001, "csprojecttest")
 		asyncio.create_task(wait_server(self.server))

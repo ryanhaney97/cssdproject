@@ -13,11 +13,17 @@ async def connect_to_server(server_name, server_port, certificate):
     reader, writer = await asyncio.open_connection(server_name, server_port, ssl=sslcontext)
     return (reader, writer)
 
-async def send_message(connection, *args):
+def assemble_message(args):
     data = ""
     for arg in args:
-        data+=str(arg).replace("\u200c", "") + "\u200c"
-    data = str(data[:-1]) + "\n"
+        if(isinstance(arg, list) or isinstance(arg, tuple)):
+            data+=assemble_message(arg)
+        else:
+            data+=str(arg).replace("\u200c", "") + "\u200c"
+    return data
+
+async def send_message(connection, *args):
+    data = assemble_message(args)[:-1] + "\n"
     reader, writer = connection
     if(not writer.is_closing()):
         writer.write(data.encode())
@@ -46,7 +52,7 @@ async def receive_message_fn(connection, handler):
     result = handler(*(message.split("\u200c")))
     if(isinstance(result, CoroutineType)):
         result = await result
-    await send_message(connection, str(result).encode())
+    await send_message(connection, result)
 
 async def make_server(callback, port, certificate):
     async def server_callback(reader, writer):
