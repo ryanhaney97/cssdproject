@@ -13,4 +13,4 @@ class Address:
 	def __eq__(self, other):
 		return isinstance(other, Address) and self.address1 == other.address1 and self.address2 == other.address2 and self.city == other.city and self.state == other.state and self.zipcode == other.zipcode
 	def __repr__(self):
-		return f"{self.address1}\n{self.address2 if len(str(self.address2))!=0 else ""}\n{self.city}, {self.state} {self.zipcode}\n"
+		return f"{self.address1}\n{self.address2 if len(str(self.address2))!=0 else ''}\n{self.city}, {self.state} {self.zipcode}\n"
