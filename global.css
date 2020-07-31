@@ -5,6 +5,10 @@ body{
     padding-top: 10vh;
 }
 
+h1 {
+    color: #fff;
+}
+
 .form-container{
     width:250px;
     height: auto;
