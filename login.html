@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>LoginForm</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/global') }}">
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static',filename='styles/global.css') }}">
 </head>
 <body>
 <div class="form-container">
@@ -11,7 +13,8 @@
         <li>User Login</li>
         <li><input type="user" name="Username" placeholder="Username"></li>
         <li><input type="pass" name="Password" placeholder="Password"></li>
-        <li><input type="button" name="Submit" value="Submit"></li>
+        <li><input type="button" name="Login" value="Login"></li>
+        <li><input type="button" name="Register" value="Register"></li>
         <li>Forgot Password</li>
     </ul>
 
