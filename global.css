@@ -1,3 +1,4 @@
+/* global.css */
 *{margin: 0; padding:0}
 body{
     background-color: #000;
@@ -32,7 +33,7 @@ border:none;
 background-color: #d3d3d3;
 }
 
-ul.list li input[type="button"]{
+ul.list li input[type="button1"]{
 background-color: #000;
 color: #fff;
 }
