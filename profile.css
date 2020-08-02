@@ -6,13 +6,17 @@
   padding: 100px;
 }
 
+h1 {
+    color: #fff;
+}
+
 body{
     background-color: #000;
     padding-top: 10vh;
 }
 
 /* Full-width input fields */
-input[type=text], input[type=number], select {
+input[type=text], input[type=number], input[type=password], select {
   width: 100%;
   padding: 15px;
   margin: 5px 0 22px 0;
@@ -21,7 +25,7 @@ input[type=text], input[type=number], select {
   background: #f1f1f1;
 }
 
-input[type=text]:focus, input[type=number]:focus, select:focus{
+input[type=text]:focus, input[type=number]:focus, input[type=password]:focus,select:focus{
   background-color: #ddd;
   outline: none;
 }
