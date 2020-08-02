@@ -1,6 +1,7 @@
 from dsync import connect_to_server, send_message, receive_message, send_message_fn
 import asyncio
 from quote import Quote
+from profile import Profile
 
 connection = None
 
@@ -38,6 +39,10 @@ async def get_quote_history():
 	strquotes = (await send_message_fn(connection, "Get Quote History")).split("\u200c")
 	quotes = [Quote.from_str(strquote) for strquote in strquotes]
 	return quotes
+
+async def get_profile():
+	strprofile = await send_message_fn(connection, "Get Profile")
+	return Profile.from_str(strprofile)
 
 async def update_profile(*, name=None, address=None, oldpassword=None, newpassword=None):
 	to_send = []

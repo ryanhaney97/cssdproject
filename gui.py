@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 
 @app.route('/register')
-def registration:
+def registration():
 	return render_template('registration.html')
 
 @app.route('/')

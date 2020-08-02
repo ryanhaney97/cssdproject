@@ -105,11 +105,17 @@ def update_profile(current_user, *args):
 		current_user.address = oldaddress
 	return result
 
+def get_profile(current_user, *args):
+	if(len(args) != 0):
+		return "Error: Invalid arity"
+	return current_user
+
 userhandlermap = {
 	"Get Quote": get_quote,
 	"Get Quote History": get_quote_history,
 	"Submit Quote": submit_quote,
-	"Update Profile": update_profile
+	"Update Profile": update_profile,
+	"Get Profile": get_profile
 }
 
 #Dispatch function for the server
