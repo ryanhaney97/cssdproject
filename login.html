@@ -11,16 +11,32 @@
 
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
 
-<div class="form-container">
-    <ul class="list">
-        <li>User Login</li>
-        <li><input type="user" name="Username" placeholder="Username"></li>
-        <li><input type="pass" name="Password" placeholder="Password"></li>
-        <li><input type="button" name="Login" value="Login"></li>
-        <li><input type="button" name="Register" value="Register"></li>
-        <!--<li>Forgot Password</li>-->
-    </ul>
+<script>
+    function doLogin(){
+        var formEl = document.forms.LoginForm;
+        var formData = new FormData(formEl);
+        var username = formData.get("Username");
+        var password = formData.get("Password");
+        pywebview.api.login(username, password).then((result) => {
+            if(result == "Success"){
+                window.location.href="./profile.html"
+            }
+            else{
+                alert(result)
+            }
+        })
+    }
+</script>
 
+<div class="form-container">
+    <form>
+        User Login
+        <input type="user" name="Username" placeholder="Username">
+        <input type="pass" name="Password" placeholder="Password">
+        <input type="button" name="Login" value="Login" onclick="doLogin()">
+        <input type="button" name="Register" value="Register" onclick="window.location.href='./registration.html'">
+        <!--<li>Forgot Password</li>-->
+    </form>
 </div>
 </body>
 </html>

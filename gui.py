@@ -1,5 +1,3 @@
-from flask import Flask
-from flask import Flask, flash, redirect, render_template, request, session, abort
 from address import Address
 from quote import Quote
 import webview
@@ -7,15 +5,12 @@ import os
 import asyncio
 import client_calls as call
 
-app = Flask(__name__)
-
 class Api:
 	def __init__(self):
 		self.loop = asyncio.get_event_loop()
 		self.profile = None
 		self.error = None
-		self.loop.run_until_complete(call.connect())
-		self.connected = True
+		self.connected = False
 	def login(self, username, password):
 		if(not self.connected):
 			self.loop.run_until_complete(call.connect())
@@ -42,8 +37,10 @@ class Api:
 		return response
 	def getquotefor(self, gallons, date):
 		self.profile.quoteinprogress = Quote(int(gallons), date, self.profile.address)
-		self.profile.quoteinprogress.price = float(self.loop.run_until_complete(call.get_quote(gallons, date)))
-		return self.profile.quoteinprogress.price
+		result = self.loop.run_until_complete(call.get_quote(gallons, date))
+		if(isinstance(result, float)):
+			self.profile.quoteinprogress.price = result
+		return result
 	def submitquote(self):
 		return self.loop.run_until_complete(call.submit_quote())
 	def getquotehistory(self):
@@ -86,7 +83,7 @@ def main():
 	api = Api()
 	window = webview.create_window("CS Project", url="login.html", js_api = api)
 	window.closing += api.logout
-	webview.start()
+	webview.start(debug=True)
 
 if __name__ == "__main__":
     main()
