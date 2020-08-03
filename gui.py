@@ -4,6 +4,7 @@ import webview
 import os
 import asyncio
 import client_calls as call
+from datetime import date as dtdate, datetime as dtdatetime
 
 class Api:
 	def __init__(self):
@@ -20,11 +21,12 @@ class Api:
 			self.profile = self.loop.run_until_complete(call.get_profile())
 		return response
 	def logout(self):
-		self.loop.run_until_complete(call.logout())
-		self.profile = None
-		self.quotes = None
-		self.error = None
-		self.connected = False
+		if(self.connected):
+			self.loop.run_until_complete(call.logout())
+			self.profile = None
+			self.quotes = None
+			self.error = None
+			self.connected = False
 	def register(self, username, password, confpassword, name, addr1, addr2, city, state, zip):
 		if(not self.connected):
 			self.loop.run_until_complete(call.connect())
@@ -35,11 +37,17 @@ class Api:
 		if(response == "Success"):
 			self.profile = self.loop.run_until_complete(call.get_profile())
 		return response
-	def getquotefor(self, gallons, date):
-		self.profile.quoteinprogress = Quote(int(gallons), date, self.profile.address)
-		result = self.loop.run_until_complete(call.get_quote(gallons, date))
+	def getquotefor(self, gallons, sdate):
+		try:
+			igallons = int(gallons)
+		except ValueError:
+			return "Error: " + gallons + " is not a number"
+		date = dtdatetime.strptime(sdate, "%m/%d/%Y").date()
+		self.profile.quoteinprogress = Quote(igallons, date, self.profile.address)
+		result = self.loop.run_until_complete(call.get_quote(self.profile.quoteinprogress.gallons, self.profile.quoteinprogress.date))
 		if(isinstance(result, float)):
 			self.profile.quoteinprogress.price = result
+			return "Success"
 		return result
 	def editprofile(self, name, addr1, addr2, city, state, zip, oldpassword, newpassword, confnewpassword):
 		if(newpassword!=confnewpassword):
@@ -66,9 +74,9 @@ class Api:
 		self.profile.quotes = self.loop.run_until_complete(call.get_quote_history())
 		return self.profile.quotes
 	def getprice(self):
-		return self.quote.price
+		return self.profile.quoteinprogress.price
 	def gettotal(self):
-		return self.quote.total 
+		return self.profile.quoteinprogress.total
 	def getname(self):
 		if(self.profile is None):
 			return None

@@ -5,32 +5,75 @@
     <title>Quote</title>
     <link rel="stylesheet"
           type="text/css"
-          href="{{ url_for('static',filename='styles/profile.css') }}">
+          href="styles/profile.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <script>
+      $( function() {
+        $( ".datepicker" ).datepicker();
+      } );
+  </script>
 </head>
 <body>
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
 
-<form action="quote_page.php"></form>
+<script>
+    function doQuote(){
+        var formEl = document.forms.QuoteForm;
+        var formData = new FormData(formEl);
+        var gallons = formData.get("Gallons Requested");
+        var date = formData.get("Delivery Date");
+        pywebview.api.getquotefor(gallons, date).then((result) => {
+            if(result == "Success"){
+                pywebview.api.getprice().then((price) => {
+                    document.getElementById("price").value = price;
+                })
+                pywebview.api.gettotal().then((total) => {
+                    document.getElementById("total").value = total;
+                })
+                document.getElementById("SubmitButton").disabled = false;
+            }
+            else{
+                alert(result)
+            }
+        })
+    }
+    function submitQuote(){
+        pywebview.api.submitquote().then((result) => {
+            if(result == "Success"){
+                alert("Quote Submitted")
+                window.location.href="./mainpage.html"
+            }
+            else{
+                alert(result)
+            }
+        })
+    }
+</script>
+
+<form id="QuoteForm">
     <div class="form-container">
         <h2>Quote Information</h2>
                 <hr>
         <label for="Gallons Requested"><b>*Gallons Requested</b></label>
         <input type="number" placeholder="Enter Gallons" name="Gallons Requested" id="Gallons Requested" required>
 
-        <label for="Delivery Address"><b>Delivery Address</b></label>
-        <input type="text" placeholder="Enter Delivery Address" name="Delivery Address" id="Delivery Address" required>
-
         <label for="Delivery Date"><b>*Delivery Date</b></label>
-        <input type="date" name="Delivery Date" id="Delivery Date" required>
+        <input type="date" name="Delivery Date" id="Delivery Date" class="datepicker" required>
         <br><br>
 
-        <span class="Suggested Price"><b>Suggested Price</b></span>
+        <label for="price"><b>Suggested Price:</b></label>
+        <input type="text" name="price" id="price" readonly>
         <br><br>
 
-        <span class="Total Amount Due"><b>Total Amount Due</b></span>
+        <label for="total"><b>Total Amount Due:</b></label>
+        <input type="text" name="total" id="total" readonly>
+        <br><br>
 
-        <button type="submit" class="registerbtn" onclick="window.location.href='./mainpage.html'">Submit</button>
+        <input type="button" class="registerbtn" onclick="doQuote()" value="Get Quote">
+        <input type="button" id="SubmitButton" class="registerbtn" onclick="submitQuote()" value="Submit Quote" disabled>
     </div>
-
+</form>
 </body>
 </html>
