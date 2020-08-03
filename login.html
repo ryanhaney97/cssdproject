@@ -5,12 +5,12 @@
     <title>LoginForm</title>
     <link rel="stylesheet"
           type="text/css"
-          href="styles/global.css">
+          href="{{ url_for('static',filename='styles/profile.css') }}">
 </head>
 <body>
 
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
-    <hr>
+<hr>
 
 <script>
     function doLogin(){
@@ -20,20 +20,22 @@
         var password = formData.get("Password");
         pywebview.api.login(username, password).then((result) => {
             if(result == "Success"){
-                window.location.href="./mainpage.html";
+                window.location.href="./profile.html"
             }
             else{
-                alert(result);
+                alert(result)
             }
         })
     }
 </script>
 
 <div class="form-container">
-    <form id="LoginForm">
-        User Login
-        <input type="text" name="Username" placeholder="Username">
-        <input type="password" name="Password" placeholder="Password">
+    <form>
+        <h2>User Login</h2>
+        <label for="Username"><b>Username</b></label>
+        <input type="text" name="Username" placeholder="Username" id="Username">
+        <label for="Password"><b>Password</b></label>
+        <input type="password" name="Password" placeholder="Password" id="Password">
         <input type="button" name="Login" value="Login" onclick="doLogin()">
         <input type="button" name="Register" value="Register" onclick="window.location.href='./registration.html'">
         <!--<li>Forgot Password</li>-->
