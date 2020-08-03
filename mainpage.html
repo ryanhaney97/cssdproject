@@ -5,17 +5,24 @@
     <title>Main Hub</title>
     <link rel="stylesheet"
           type="text/css"
-          href="{{ url_for('static',filename='styles/profile.css') }}">
+          href="styles/profile.css">
 </head>
 <body>
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
 <hr>
 <div class="form-container">
+<script>
+	function Logout(){
+		pywebview.api.logout().then((result) => {
+                window.location.href="./login.html"
+        })
+	}
+</script>
 <h3>Main Page</h3>
     <input type="button" class="registerbtn" name="Edit Profile" value="Edit Profile" onclick="window.location.href='./editprofile.html'">
     <input type="button" class="registerbtn" name="Submit A Quote" value="Submit A Quote" onclick="window.location.href='./quote.html'">
     <input type="button" class="registerbtn" name="Quote History" value="Quote History" onclick="window.location.href='./quotehistory.html'">
-    <input type="button" class="registerbtn" name="Logout" value="Logout" onclick="window.location.href='./login.html'">
+    <input type="button" class="registerbtn" name="Logout" value="Logout" onclick="Logout()">
     
 </div>
 
