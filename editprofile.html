@@ -9,6 +9,31 @@
 </head>
 <body>
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
+
+<script>
+    function doRegister(){
+        var formRe = document.forms.Registration_Form;
+        var formData = new FormData(formRe);
+        var username = formData.get("Username");
+        var password = formData.get("password");
+        var confpassword = formData.get("passwordr");
+        var name = formData.get("Full Name");
+        var addr1 = formData.get("Address 1");
+        var addr2 = formData.get("Address 2");
+        var city = formData.get("City");
+        var state = formData.get("State");
+        var zip = formData.get("Zipcode");
+        pywebview.api.register(username, password, confpassword, name, addr1, addr2, city, state, zip).then((result) => {
+            if(result == "Success"){
+                window.location.href="./mainpage.html"
+            }
+            else{
+                alert(result)
+            }
+        })
+    }
+</script>
+
 <hr>
 <form action="editprofile_page.php"></form>
     <div class="form-container">
@@ -97,7 +122,7 @@
     <input type="password" placeholder="Repeat New Password" name="passwordr" id="passwordr" optional>
     <hr>
 
-        <input type="button" name="Confirm Changes" value="Confirm Changes" onclick="window.location.href='./mainpage.html'">
+        <input type="button" name="Confirm Changes" value="Confirm Changes" onclick="doRegister()">
     </div>
 
 </body>
