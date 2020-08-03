@@ -83,7 +83,6 @@ class Api:
 						   			   "city": quote.address.city,
 						   			   "state": quote.address.state,
 						   			   "zipcode": quote.address.zipcode}})
-		print(quotes)
 		return quotes
 	def getprice(self):
 		return self.profile.quoteinprogress.price
