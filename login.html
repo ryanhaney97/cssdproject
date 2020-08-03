@@ -20,10 +20,10 @@
         var password = formData.get("Password");
         pywebview.api.login(username, password).then((result) => {
             if(result == "Success"){
-                window.location.href="./mainpage.html"
+                window.location.href="./mainpage.html";
             }
             else{
-                alert(result)
+                alert(result);
             }
         })
     }

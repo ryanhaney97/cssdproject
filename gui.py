@@ -72,7 +72,19 @@ class Api:
 		return self.loop.run_until_complete(call.submit_quote())
 	def getquotehistory(self):
 		self.profile.quotes = self.loop.run_until_complete(call.get_quote_history())
-		return self.profile.quotes
+		quotes = []
+		for quote in self.profile.quotes:
+			quotes.append({"gallons": quote.gallons,
+						   "date": str(quote.date),
+						   "price": quote.price,
+						   "total": quote.total,
+						   "address": {"address1": quote.address.address1,
+						   			   "address2": quote.address.address2,
+						   			   "city": quote.address.city,
+						   			   "state": quote.address.state,
+						   			   "zipcode": quote.address.zipcode}})
+		print(quotes)
+		return quotes
 	def getprice(self):
 		return self.profile.quoteinprogress.price
 	def gettotal(self):
