@@ -10,6 +10,9 @@
 h1 {
     color: #fff;
 }
+h3{
+text-align: center;
+}
 
 body{
     background-color: #C1C7C9;
@@ -39,7 +42,7 @@ hr {
 
 /* Set a style for the submit/register button */
 .registerbtn {
-  background-color: #4CAF50;
+  background-color: #24A0ED;
   color: white;
   padding: 16px 20px;
   margin: 8px 0;
@@ -67,4 +70,14 @@ hr {
 .signin {
   background-color: #f1f1f1;
   text-align: center;
+}
+input[type="button"]{
+  background-color: #24a0ed;
+  color: white;
+  padding: 16px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
 }
