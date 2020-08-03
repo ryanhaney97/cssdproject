@@ -15,7 +15,11 @@ class Api:
 		self.profile = None
 		self.error = None
 		self.loop.run_until_complete(call.connect())
+		self.connected = True
 	def login(self, username, password):
+		if(not self.connected):
+			self.loop.run_until_complete(call.connect())
+			self.connected = True
 		response = self.loop.run_until_complete(call.login(username, password))
 		if(response == "Success"):
 			self.profile = self.loop.run_until_complete(call.get_profile())
@@ -25,7 +29,11 @@ class Api:
 		self.profile = None
 		self.quotes = None
 		self.error = None
+		self.connected = False
 	def register(self, username, password, confpassword, name, addr1, addr2, city, state, zip):
+		if(not self.connected):
+			self.loop.run_until_complete(call.connect())
+			self.connected = True
 		if(password!=confpassword):
 			return "Error: password does not match confirmed password"
 		response = self.loop.run_until_complete(call.register(username, password, name, Address(city, state, zip, addr1, addr2)))
@@ -74,13 +82,11 @@ class Api:
 			return None
 		return self.profile.address.zipcode
 
-@app.route('/register')
-def registration():
-	return render_template('registration.html')
-
-@app.route('/')
-def login():
-    return render_template('login.html')
+def main():
+	api = Api()
+	window = webview.create_window("CS Project", url="login.html", js_api = api)
+	window.closing += api.logout
+	webview.start()
 
 if __name__ == "__main__":
-    app.run()
+    main()
