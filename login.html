@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>LoginForm</title>
+    <title>Login Form</title>
     <link rel="stylesheet"
           type="text/css"
           href="styles/profile.css">
@@ -18,9 +18,11 @@
         var formData = new FormData(formEl);
         var username = formData.get("Username");
         var password = formData.get("Password");
+        console.log(username);
+        console.log(password);
         pywebview.api.login(username, password).then((result) => {
             if(result == "Success"){
-                window.location.href="./profile.html"
+                window.location.href="./mainpage.html"
             }
             else{
                 alert(result)
@@ -30,7 +32,7 @@
 </script>
 
 <div class="form-container">
-    <form>
+    <form id="LoginForm">
         <h2>User Login</h2>
         <label for="Username"><b>Username</b></label>
         <input type="text" name="Username" placeholder="Username" id="Username">

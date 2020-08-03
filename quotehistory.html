@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quote History</title>
+    <link rel="stylesheet"
+          type="text/css"
+          href="styles/profile.css">
+</head>
+<body>
+    <h3>Quote History</h3>
+    <ul id="quotes">
+    </ul>
+    <script type="text/javascript">
+        window.addEventListener('pywebviewready', function() {
+            pywebview.api.getquotehistory().then((quotes) => {
+                quotesEle = document.getElementById('quotes');
+                quotes.forEach((quote) => {
+                    console.log(quote);
+                    if(quote.address.address2 == ""){
+                        quotesEle.innerHTML += '<li>' + "Gallons: " + quote.gallons + "<br>" + "Date: " + quote.date + "<br>" + "Address:<br>" + quote.address.address1 + "<br>" + quote.address.city + ", " + quote.address.state + "<br>" + quote.address.zipcode + "<br>Price Per Gallon: " + quote.price + "<br>Total: " + quote.total + '<br></li>';
+                    }
+                    else{
+                        quotesEle.innerHTML += '<li>' + "Gallons: " + quote.gallons + "<br>" + "Date: " + quote.date + "<br>" + "Address:<br>" + quote.address.address1 + "<br>" + quote.address.address2 + "<br>" + quote.address.city + ", " + quote.address.state + "<br>" + quote.address.zipcode + "<br>Price Per Gallon: " + quote.price + "<br>Total: " + quote.total + '<br></li>';
+                    }
+                })
+            })
+        })
+    </script>
+</body>
