@@ -118,9 +118,11 @@ class LoginTests(unittest.TestCase):
 		testpassword = "somepassword"
 		testprofile = makeAndInsertFakeProfile(server.dbconnection, password=testpassword)
 		self.assertIsInstance(server.get_user_for_login("wrongusername", testpassword), str)
+
 async def wait_server(server):
 	async with server:
 		await server.serve_forever()
+
 class ConnectionTests(unittest.IsolatedAsyncioTestCase):
 	async def server_callback(self, connection):
 		self.server_connection = connection
@@ -187,6 +189,48 @@ class ConnectionTests(unittest.IsolatedAsyncioTestCase):
 		self.assertEqual(response, "Success")
 		await asyncio.wait_for(dsync.send_message_fn(self.connection, "Logout"), timeout=10)
 		self.assertTrue(login_task.done())
+
+class APITests(unittest.IsolatedAsyncioTestCase):
+	async def server_callback(self, connection):
+		self.server_connection = connection
+	def setUp(self):
+		Quote.quote_by_id = {}
+		Address.address_by_id = {}
+		server.dbconnection = database.initDB(":memory:")
+		server.connected_users = set()
+		self.password="password"
+		self.profile = makeAndInsertFakeProfile(server.dbconnection, password=self.password)
+	async def asyncSetUp(self):
+		self.server = await dsync.make_server(self.server_callback, 9001, "csprojecttest")
+		asyncio.create_task(wait_server(self.server))
+		self.connection = await dsync.connect_to_server("localhost", 9001, "csprojecttest")
+		await asyncio.sleep(1)
+		asyncio.create_task(server.handle_new_login(self.server_connection))
+		await asyncio.wait_for(dsync.send_message(self.connection, "Login"), timeout=10)
+		response = await asyncio.wait_for(dsync.send_message_fn(self.connection, self.profile.username, self.password), timeout=10)
+		self.assertEqual(response, "Success")
+	def tearDown(self):
+		server.dbconnection.close()
+		server.dbconnection = None
+	async def asyncTearDown(self):
+		await asyncio.wait_for(dsync.send_message(self.connection, "Logout"), timeout=10)
+		self.server.close()
+		self.connection[1].close()
+		await self.connection[1].wait_closed()
+		self.server_connection[1].close()
+		await self.server_connection[1].wait_closed()
+		self.server_connection = None
+		self.server = None
+		self.connection = None
+	async def test_get_quote(self):
+		price = await asyncio.wait_for(dsync.send_message_fn(self.connection, "Get Quote", 500, dtdate.today()), timeout=10)
+		self.assertEqual(price, "1.755")
+		price = await asyncio.wait_for(dsync.send_message_fn(self.connection, "Get Quote", 1500, dtdate.today()), timeout=10)
+		self.assertEqual(price, "1.74")
+	async def test_get_profile(self):
+		strprofile = await asyncio.wait_for(dsync.send_message_fn(self.connection, "Get Profile"), timeout=10)
+		self.assertEqual(Profile.from_str(strprofile), self.profile)
+
 
 def main():
 	unittest.main(testLoader=SequentialTestLoader())

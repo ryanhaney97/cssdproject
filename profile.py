@@ -10,7 +10,7 @@ class Profile:
         self.quoteinprogress = None
     @staticmethod
     def from_str(profilestr):
-        username, name, *addrstr = quotestr.split("|")
+        username, name, *addrstr = profilestr.split("|")
         address = Address(*addrstr)
         return Profile(username, name, address)
     def __eq__(self, other):
