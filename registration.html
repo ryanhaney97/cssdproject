@@ -10,6 +10,30 @@
 <body>
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
 
+<script>
+    function doRegister(){
+        var formRe = document.forms.Registration_Form;
+        var formData = new FormData(formRe);
+        var username = formData.get("Username");
+        var password = formData.get("password");
+        var confpassword = formData.get("passwordr");
+        var name = formData.get("Full Name");
+        var addr1 = formData.get("Address 1");
+        var addr2 = formData.get("Address 2");
+        var city = formData.get("City");
+        var state = formData.get("State");
+        var zip = formData.get("Zipcode");
+        pywebview.api.register(username, password, confpassword, name, addr1, addr2, city, state, zip).then((result) => {
+            if(result == "Success"){
+                window.location.href="./profile.html"
+            }
+            else{
+                alert(result)
+            }
+        })
+    }
+</script>
+
 <form action="registration_page.php"></form>
     <div class="form-container">
         <h2>Client Profile</h2>
@@ -98,7 +122,8 @@
                 <input type="password" placeholder="Repeat Password" name="passwordr" id="passwordr" required>
                 <hr>
 
-                <button type="submit" class="registerbtn">Submit</button>
+                <!--<button type="submit" class="registerbtn">Submit</button>-->
+                <input type="button" name="Register" value="Register" onclick="doRegister()">
     </div>
 
 </body>
