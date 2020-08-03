@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quote</title>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static',filename='styles/profile.css') }}">
+</head>
+<body>
+<h1>COSC 4353 Lawrence_Haney_Robinson</h1>
+
+<form action="quote_page.php"></form>
+    <div class="form-container">
+        <h2>Quote Information</h2>
+                <hr>
+        <label for="Gallons Requested"><b>*Gallons Requested</b></label>
+        <input type="number" placeholder="Enter Gallons" name="Gallons Requested" id="Gallons Requested" required>
+
+        <label for="Delivery Address"><b>Delivery Address</b></label>
+        <input type="text" placeholder="Enter Delivery Address" name="Delivery Address" id="Delivery Address" required>
+
+        <label for="Delivery Date"><b>*Delivery Date</b></label>
+        <input type="date" name="Delivery Date" id="Delivery Date" required>
+        <br><br>
+
+        <span class="Suggested Price"><b>Suggested Price</b></span>
+        <br><br>
+
+        <span class="Total Amount Due"><b>Total Amount Due</b></span>
+
+    </div>
+
+</body>
+</html>
