@@ -5,7 +5,7 @@
     <title>Registration Form</title>
     <link rel="stylesheet"
           type="text/css"
-          href="{{ url_for('static',filename='styles/profile.css') }}">
+          href="styles/profile.css">
 </head>
 <body>
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
@@ -34,8 +34,8 @@
     }
 </script>
 
-<form action="registration_page.php"></form>
     <div class="form-container">
+        <form id="Registration_Form">
         <h2>Client Profile</h2>
                 <hr>
 
@@ -124,6 +124,7 @@
 
                 <!--<button type="submit" class="registerbtn">Submit</button>-->
                 <input type="button" name="Register" value="Register" onclick="doRegister()">
+            </form>
     </div>
 
 </body>
