@@ -19,7 +19,7 @@
         var password = formData.get("Password");
         pywebview.api.login(username, password).then((result) => {
             if(result == "Success"){
-                window.location.href="./profile.html"
+                window.location.href="./editprofile.html"
             }
             else{
                 alert(result)
@@ -29,7 +29,7 @@
 </script>
 
 <div class="form-container">
-    <form>
+    <form id="LoginForm">
         User Login
         <input type="text" name="Username" placeholder="Username">
         <input type="password" name="Password" placeholder="Password">

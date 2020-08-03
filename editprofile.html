@@ -5,16 +5,39 @@
     <title>Edit Profile</title>
     <link rel="stylesheet"
           type="text/css"
-          href="{{ url_for('static',filename='styles/profile.css') }}">
+          href="styles/profile.css">
 </head>
 <body>
 <h1>COSC 4353 Lawrence_Haney_Robinson</h1>
 
 <script>
+    function populateForm(){
+        pywebview.api.getname().then((name) => {
+            document.getElementById("Full Name").value = name
+        })
+        pywebview.api.getaddress1().then((addr1) => {
+            document.getElementById("Address 1").value = addr1
+        })
+        pywebview.api.getaddress2().then((addr2) => {
+            document.getElementById("Address 2").value = addr2
+        })
+        pywebview.api.getcity().then((city) => {
+            document.getElementById("City").value = city
+        })
+        pywebview.api.getstate().then((state) => {
+            document.getElementById("State").value = state
+        })
+        pywebview.api.getzipcode().then((zip) => {
+            document.getElementById("Zipcode").value = zip
+        })
+    }
+    window.addEventListener('pywebviewready', function() {
+        populateForm()
+    })
     function doRegister(){
-        var formRe = document.forms.Registration_Form;
+        var formRe = document.forms.EditForm;
         var formData = new FormData(formRe);
-        var username = formData.get("Username");
+        var oldpassword = formData.get("Old Password")
         var password = formData.get("password");
         var confpassword = formData.get("passwordr");
         var name = formData.get("Full Name");
@@ -23,7 +46,7 @@
         var city = formData.get("City");
         var state = formData.get("State");
         var zip = formData.get("Zipcode");
-        pywebview.api.register(username, password, confpassword, name, addr1, addr2, city, state, zip).then((result) => {
+        pywebview.api.editprofile(name, addr1, addr2, city, state, zip, oldpassword, password, confpassword).then((result) => {
             if(result == "Success"){
                 window.location.href="./mainpage.html"
             }
@@ -35,13 +58,12 @@
 </script>
 
 <hr>
-<form action="editprofile_page.php"></form>
+<form id="EditForm">
     <div class="form-container">
         <h2>Edit Profile</h2>
         <hr>
-
                 <label for="Full Name"><b>Edit New Name</b></label>
-                <input type="text" placeholder="Enter First, Last Name" name="Full Name" id="Full Name" optional>
+                <input type="text" name="Full Name" id="Full Name" optional>
 
                 <label for="Address 1"><b>Edit Address 1</b></label>
                 <input type="text" placeholder="Enter Address Line 1" name="Address 1" id="Address 1" optional>
@@ -124,6 +146,6 @@
 
         <input type="button" name="Confirm Changes" value="Confirm Changes" onclick="doRegister()">
     </div>
-
+</form>
 </body>
 </html>
