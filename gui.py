@@ -41,6 +41,25 @@ class Api:
 		if(isinstance(result, float)):
 			self.profile.quoteinprogress.price = result
 		return result
+	def editprofile(self, name, addr1, addr2, city, state, zip, oldpassword, newpassword, confnewpassword):
+		if(newpassword!=confnewpassword):
+			return "Error: new password does not match confirmed new password"
+		addr = Address(city, state, zip, addr1, addr2)
+		changes = {}
+		if(addr!=self.profile.address):
+			changes["address"] = addr
+		if(name!=profile.name):
+			changes["name"] = name
+		if(len(oldpassword)!=0):
+			changes["oldpassword"] = oldpassword
+		if(len(newpassword)!=0):
+			changes["newpassword"] = newpassword
+		if(len(changes.keys()) == 0):
+			return "No changes made"
+		response = self.loop.run_until_complete(call.update_profile(**changes))
+		if(response == "Success"):
+			self.profile = self.loop.run_until_complete(call.get_profile())
+		return response
 	def submitquote(self):
 		return self.loop.run_until_complete(call.submit_quote())
 	def getquotehistory(self):
