@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <link rel="stylesheet"
+          type="text/css"
+          href="{{ url_for('static',filename='styles/profile.css') }}">
+</head>
+<body>
+<h1>COSC 4353 Lawrence_Haney_Robinson</h1>
+
+<form action="editprofile_page.php"></form>
+    <div class="form-container">
+    <h2>Password Change</h2>
+
+    <label for="Old Password"><b>Username</b></label>
+    <input type="password" placeholder="Enter Old Password" name="Old Password" id="Old Password" required>
+
+    <label for="password"><b>Password</b></label>
+    <input type="password" placeholder="Enter New Password" name="password" id="password" required>
+
+    <label for="passwordr"><b>Repeat Password</b></label>
+    <input type="password" placeholder="Repeat New Password" name="passwordr" id="passwordr" required>
+    <hr>
+
+    <button type="submit" class="registerbtn">Submit</button>
+    </div>
+
+</body>
+</html>
