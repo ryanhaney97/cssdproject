@@ -56,7 +56,7 @@ class Api:
 		changes = {}
 		if(addr!=self.profile.address and len(addr1)!=0 and len(city)!=0 and len(state)!=0 and len(zip)!=0):
 			changes["address"] = addr
-		if(name!=profile.name and len(name)!=0):
+		if(name!=self.profile.name and len(name)!=0):
 			changes["name"] = name
 		if(len(oldpassword)!=0):
 			changes["oldpassword"] = oldpassword
